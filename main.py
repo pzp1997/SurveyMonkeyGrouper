@@ -7,7 +7,7 @@ import random
 import xlrd
 
 __author__ = 'Palmer Paul'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __email__ = 'pzpaul2002@yahoo.com'
 
 FILENAME = 'Passover Workshop Test Sheet (Palmer).xls'  # path to file
@@ -73,8 +73,8 @@ class Student(object):
     """Holds information about an individual student.
     Says how to display student information"""
     def __init__(self, first, last, grade, choices):
-        self.first = first
-        self.last = last
+        self.first = first.strip().title()
+        self.last = last.strip().title()
         self.grade = grade
         self.choices = choices
         self.group = None
