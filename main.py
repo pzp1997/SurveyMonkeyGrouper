@@ -7,7 +7,7 @@ import random
 import xlrd
 
 __author__ = 'Palmer Paul'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __email__ = 'pzpaul2002@yahoo.com'
 
 FILENAME = 'Passover Workshop Test Sheet (Palmer).xls'  # path to file
@@ -70,7 +70,7 @@ class ExcelParser(object):
 
 
 class Student(object):
-    """Holds information about individual students.
+    """Holds information about an individual student.
     Says how to display student information"""
     def __init__(self, first, last, grade, choices):
         self.first = first
@@ -80,7 +80,8 @@ class Student(object):
         self.group = None
 
     def __repr__(self):
-        return 'Student({}, {}, {})'.format(self.first, self.last, self.grade)
+        return 'Student({}, {}, {}, {})'.format(
+            self.first, self.last, self.grade, self.choices)
 
     def __str__(self):
         return '{} {} ({}th): {}'.format(
@@ -113,10 +114,8 @@ class Students(object):
 
     def sort(self):
         """Sort the students by grade, then last name, then first name"""
-        self.students = sorted(self.students,
-                               key=op.itemgetter('grade',
-                                                 'last_name',
-                                                 'first_name'))
+        self.students = sorted(self.students, key=op.itemgetter(
+            'grade', 'last_name', 'first_name'))
 
     def randomize(self):
         """Randomizes the order of the students in the collection"""
@@ -186,7 +185,6 @@ class Application(object):
     def main(self):
         """It all starts here! Entrypoint for program."""
         self.print_groups()
-
 
 if __name__ == '__main__':
     app = Application(FILENAME, MAX_PER_GROUP, NUM_RANKED)
