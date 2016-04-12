@@ -7,7 +7,7 @@ import random
 import xlrd
 
 __author__ = 'Palmer Paul'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __email__ = 'pzpaul2002@yahoo.com'
 
 FILENAME = 'Passover Workshop Test Sheet (Palmer).xls'  # path to file
