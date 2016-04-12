@@ -84,8 +84,8 @@ class Student(object):
             self.first, self.last, self.grade, self.choices)
 
     def __str__(self):
-        return '{} {} ({}th): {}'.format(
-            self.first, self.last, self.grade, self.group)
+        return '{} {}'.format(
+            self.first, self.last)
 
 
 class Students(object):
@@ -114,8 +114,8 @@ class Students(object):
 
     def sort(self):
         """Sort the students by grade, then last name, then first name"""
-        self.students = sorted(self.students, key=op.itemgetter(
-            'grade', 'last_name', 'first_name'))
+        self.students = sorted(self.students, key=op.attrgetter(
+            'grade', 'last', 'first'))
 
     def randomize(self):
         """Randomizes the order of the students in the collection"""
@@ -169,7 +169,10 @@ class Application(object):
         """Output the group assignments by group"""
         for i, group_name in enumerate(self.choice_names):
             print group_name.upper()
-            print self.query_students(lambda s: s.group == i)
+            students = self.query_students(lambda s: s.group == i)
+            students.sort()
+            for student in students:
+                print '{} ({}th)'.format(student, student.grade)
             print
 
     def print_grades(self):
@@ -179,12 +182,18 @@ class Application(object):
 
         for grade in grades:
             print grade[0].upper()
-            print self.query_students(lambda s: s.grade == grade[1])
+            students = self.query_students(lambda s: s.grade == grade[1])
+            students.sort()
+            for student in students:
+                print str(student) + ': ' + (self.choice_names[student.group]
+                                             if student.group is not None
+                                             else 'None')
             print
 
     def main(self):
         """It all starts here! Entrypoint for program."""
         self.print_groups()
+        self.print_grades()
 
 if __name__ == '__main__':
     app = Application(FILENAME, MAX_PER_GROUP, NUM_RANKED)
