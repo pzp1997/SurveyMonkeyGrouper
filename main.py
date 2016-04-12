@@ -2,12 +2,13 @@
 
 """Parses responses from Survey Monkey survey and creates preliminary groups"""
 
+from __future__ import unicode_literals
 import operator as op
 import random
 import xlrd
 
 __author__ = 'Palmer Paul'
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 __email__ = 'pzpaul2002@yahoo.com'
 
 FILENAME = 'Passover Workshop Test Sheet (Palmer).xls'  # path to file
@@ -35,7 +36,7 @@ class ExcelParser(object):
         for i in xrange(self.data.nrows):
             yield self.data.row(i)
 
-    def __extract_ranking_from_cell(self, cell):
+    def _extract_ranking_from_cell(self, cell):
         """Given a non-empty cell `cell`, return an integer of the ranking"""
         val = cell.value
         i = 0
@@ -56,7 +57,7 @@ class ExcelParser(object):
         choices = {}
         for i, cell in enumerate(iter_row):
             if cell.ctype != 0:
-                ranking = self.__extract_ranking_from_cell(cell)
+                ranking = self._extract_ranking_from_cell(cell)
                 choices[ranking] = i
         choices_arr = map(op.itemgetter(1), sorted(choices.iteritems()))
 
@@ -122,7 +123,7 @@ class Students(object):
         random.shuffle(self.students)
 
 
-class Application(object):
+class SuveryMonkeyGrouper(object):
     """Main "driver" class. Makes everything work together."""
     def __init__(self, filename, max_per_group, num_ranked):
         excel_data = ExcelParser(filename)
@@ -149,11 +150,11 @@ class Application(object):
         """
         group_counts = [0] * len(self.choice_names)
         self.all_students.randomize()
-        for n in xrange(num_ranked):
+        for rank in xrange(num_ranked):
             for student in self.all_students:
                 if student.group is None:
                     try:
-                        choice = student.choices[n]
+                        choice = student.choices[rank]
                     except IndexError:
                         pass
                     else:
@@ -167,9 +168,14 @@ class Application(object):
 
     def print_groups(self):
         """Output the group assignments by group"""
+
+        def group_query_factory(group_num):
+            """"Create query function for each group"""
+            return lambda s: s.group == group_num
+
         for i, group_name in enumerate(self.choice_names):
             print group_name.upper()
-            students = self.query_students(lambda s: s.group == i)
+            students = self.query_students(group_query_factory(i))
             students.sort()
             for student in students:
                 print '{} ({}th)'.format(student, student.grade)
@@ -180,21 +186,25 @@ class Application(object):
         grades = (('Freshmen', 9), ('Sophomores', 10),
                   ('Juniors', 11), ('Seniors', 12))
 
+        def grade_query_factory(grade):
+            """Create query function for each grade"""
+            return lambda s: s.grade == grade
+
         for grade in grades:
             print grade[0].upper()
-            students = self.query_students(lambda s: s.grade == grade[1])
+            students = self.query_students(grade_query_factory(grade[1]))
             students.sort()
             for student in students:
-                print str(student) + ': ' + (self.choice_names[student.group]
-                                             if student.group is not None
-                                             else 'None')
+                print '{}: {}'.format(student, self.choice_names[student.group]
+                                      if student.group is not None else 'None')
             print
 
-    def main(self):
-        """It all starts here! Entrypoint for program."""
-        self.print_groups()
-        self.print_grades()
+
+def main():
+    """It all starts here! Entrypoint for program."""
+    grouper = SuveryMonkeyGrouper(FILENAME, MAX_PER_GROUP, NUM_RANKED)
+    grouper.print_groups()
+    grouper.print_grades()
 
 if __name__ == '__main__':
-    app = Application(FILENAME, MAX_PER_GROUP, NUM_RANKED)
-    app.main()
+    main()
